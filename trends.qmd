@@ -1,0 +1,35 @@
+---
+title: "Finding Trends"
+date: December 2, 2022
+format: gfm
+---
+
+This file is for testing out `gtrendsR` and finding more trends to use. First, the libraries are loaded.
+
+```{r}
+#| message: false
+library(tidyverse)
+library(gtrendsR)
+```
+
+Now, the `gtrendsR` package includes a `categories` dataset that gives the name of a trend category and its id.
+
+```{r}
+head(categories)
+```
+
+Now two things I enjoy on a near-daily basis are coffee and podcasts. I decided to search these in Google Trends. The results were stored in `trend_data.csv`. This was done in a different R script to avoid having it run whenever the document is rendered.
+
+```{r}
+#| eval: false
+#| file: "download_trends.R"
+```
+
+This data is now previewed.
+
+```{r}
+#| message: false
+read_csv("data/trend_data.csv") %>%
+  head()
+```
+
