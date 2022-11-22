@@ -18,18 +18,79 @@ Now, the `gtrendsR` package includes a `categories` dataset that gives the name 
 head(categories)
 ```
 
-Now two things I enjoy on a near-daily basis are coffee and podcasts. I decided to search these in Google Trends. The results were stored in `trend_data.csv`. This was done in a different R script to avoid having it run whenever the document is rendered.
+Now two things I enjoy on a near-daily basis are coffee and podcasts. I decided to find the related categories.
 
 ```{r}
-#| eval: false
-#| file: "download_trends.R"
+my_categories <- categories %>%
+  filter(str_detect(name, r"([Cc]offee|[Pp]odcast)"))
+
+my_categories
 ```
 
-This data is now previewed.
+Now, the category descriptions are written to `data/trend_description` in order to have the Shiny applications display the correct descriptions.
 
 ```{r}
-#| message: false
-read_csv("data/trend_data.csv") %>%
-  head()
+my_categories %>%
+  mutate(
+    
+    # rename name
+    type = name,
+    
+    # generate description based on name
+    text = tolower(name) %>%
+      str_replace(" &", ",") %>%
+      str_c("The Google ", name, " Index tracks queries related to ", ., ", etc."),
+    
+    # only keep variables created in mutate
+    .keep = "none"
+  ) %>%
+  
+  write_csv("data/trend_description.csv")
 ```
 
+Now `trend_data.csv` is also updated.
+
+```{r}
+my_categories %>%
+  
+  group_by(name) %>%
+  
+  # get the google trends for each type
+  group_modify(
+    ~{
+      
+      # this returns a list
+      gtrends(
+        
+        # get only US results
+        geo = "US",
+        
+        # get monthly data since 2004
+        time = "all",
+        
+        # get category as the correct type
+        category = as.character(.x$id),
+        
+        # only get intrest over time
+        # returned list only contains 1 element
+        onlyInterest = TRUE
+      ) %>%
+        
+        # extract list element
+        # this will be a dataframe
+        pluck(1)
+    }
+  ) %>%
+  
+  # modify trend data to match the example
+  ungroup() %>%
+  rename(
+    type = name,
+    close = hits
+  ) %>%
+  select(type, date, close) %>%
+  
+  write_csv("data/trend_data.csv")
+```
+
+Now both files are rewritten. This means that the Shiny app can be tested without changing any of the code in `app.R`. Fortunately, this seems to work so far.

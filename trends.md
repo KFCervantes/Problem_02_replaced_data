@@ -26,57 +26,87 @@ head(categories)
     9                    Anime & Manga  317
 
 Now two things I enjoy on a near-daily basis are coffee and podcasts. I
-decided to search these in Google Trends. The results were stored in
-`trend_data.csv`. This was done in a different R script to avoid having
-it run whenever the document is rendered.
+decided to find the related categories.
 
 ``` r
-library(tidyverse)
+my_categories <- categories %>%
+  filter(str_detect(name, r"([Cc]offee|[Pp]odcast)"))
 
-# trends to search
-c("podcast", "coffee") %>%
-  
-  gtrendsR::gtrends(
+my_categories
+```
+
+              name  id
+    1   Podcasting 809
+    2 Coffee & Tea 916
+
+Now, the category descriptions are written to `data/trend_description`
+in order to have the Shiny applications display the correct
+descriptions.
+
+``` r
+my_categories %>%
+  mutate(
     
-    # limit results to US only
-    geo = "US",
+    # rename name
+    type = name,
     
-    # only search trends for last hour
-    time = "now 1-H",
+    # generate description based on name
+    text = tolower(name) %>%
+      str_replace(" &", ",") %>%
+      str_c("The Google ", name, " Index tracks queries related to ", ., ", etc."),
     
-    # only download interest data
-    onlyInterest = TRUE
-  )  %>%
-  
-  # the above returns a 1-item list
-  # this extracts the first list element
-  # this first element is a data frame
-  `[[`(1) %>%
-  
-  # select columns and rename
-  select(keyword, date, hits) %>%
-  rename(
-    type = keyword,
-    close = hits
+    # only keep variables created in mutate
+    .keep = "none"
   ) %>%
   
-  # save trend data
+  write_csv("data/trend_description.csv")
+```
+
+Now `trend_data.csv` is also updated.
+
+``` r
+my_categories %>%
+  
+  group_by(name) %>%
+  
+  # get the google trends for each type
+  group_modify(
+    ~{
+      
+      # this returns a list
+      gtrends(
+        
+        # get only US results
+        geo = "US",
+        
+        # get monthly data since 2004
+        time = "all",
+        
+        # get category as the correct type
+        category = as.character(.x$id),
+        
+        # only get intrest over time
+        # returned list only contains 1 element
+        onlyInterest = TRUE
+      ) %>%
+        
+        # extract list element
+        # this will be a dataframe
+        pluck(1)
+    }
+  ) %>%
+  
+  # modify trend data to match the example
+  ungroup() %>%
+  rename(
+    type = name,
+    close = hits
+  ) %>%
+  select(type, date, close) %>%
+  
   write_csv("data/trend_data.csv")
 ```
 
-This data is now previewed.
-
-``` r
-read_csv("data/trend_data.csv") %>%
-  head()
-```
-
-    # A tibble: 6 × 3
-      type    date                close
-      <chr>   <dttm>              <dbl>
-    1 podcast 2022-11-22 00:29:00    13
-    2 podcast 2022-11-22 00:30:00    17
-    3 podcast 2022-11-22 00:31:00    13
-    4 podcast 2022-11-22 00:32:00    27
-    5 podcast 2022-11-22 00:33:00    24
-    6 podcast 2022-11-22 00:34:00    20
+Now both files are rewritten. This means that the Shiny app can be
+tested without changing any of the code in `app.R`. Fortunately, this
+seems to work so far.
