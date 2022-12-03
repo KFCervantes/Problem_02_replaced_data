@@ -8,4 +8,4 @@ The process for replacing the data can be found in `trends.md`.
 
 The modified application can be found at the link below:
 
-https://eshfqv-kaleb-cervantes.shinyapps.io/Problem_02_replaced_data/?_ga=2.102223111.700235306.1670049655-2121262089.1667170532
+https://eshfqv-kaleb-cervantes.shinyapps.io/Problem_02_replaced_data/
