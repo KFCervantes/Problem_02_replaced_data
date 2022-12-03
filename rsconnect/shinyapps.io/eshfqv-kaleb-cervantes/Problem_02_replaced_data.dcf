@@ -1,0 +1,14 @@
+name: Problem_02_replaced_data
+title: Problem_02_replaced_data
+username:
+account: eshfqv-kaleb-cervantes
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 7801877
+bundleId: 6585360
+url: https://eshfqv-kaleb-cervantes.shinyapps.io/Problem_02_replaced_data/
+when: 1670051278.95939
+lastSyncTime: 1670051278.9594
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: README.md|trends.md|trends.qmd

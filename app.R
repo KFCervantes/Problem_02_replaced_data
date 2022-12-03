@@ -20,9 +20,10 @@ ui <- fluidPage(theme = shinytheme("lumen"),
                   selected = "Travel"),
 
       # Select date range to be plotted
+      # Dates have been expanded
       dateRangeInput("date", strong("Date range"), 
-                     start = "2007-01-01", end = "2017-07-31",
-                     min = "2007-01-01", max = "2017-07-31"),
+                     start = "2004-01-01", end = "2022-11-01",
+                     min = "2004-01-01", max = "2022-11-01"),
 
       # Select whether to overlay smooth trend line
       checkboxInput(inputId = "smoother", 
